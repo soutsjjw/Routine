@@ -11,7 +11,7 @@ namespace Routine.Api.ValidationAttributes
 
             if (addDto.EmployeeNo == addDto.FirstName)
             {
-                return new ValidationResult("員工編號不可以等於名",
+                return new ValidationResult(ErrorMessage,
                     new[] { nameof(EmployeeAddDto) });
             }
 

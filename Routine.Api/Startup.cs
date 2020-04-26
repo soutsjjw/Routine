@@ -32,7 +32,28 @@ namespace Routine.Api
             services.AddControllers(setup =>
             {
                 setup.ReturnHttpNotAcceptable = true;
-            }).AddXmlDataContractSerializerFormatters();
+            }).AddXmlDataContractSerializerFormatters()
+            .ConfigureApiBehaviorOptions(setup =>
+            {
+                setup.InvalidModelStateResponseFactory = context =>
+                {
+                    var problemDetails = new ValidationProblemDetails(context.ModelState)
+                    {
+                        Type = "https://www.google.com",
+                        Title = "有錯誤！！！",
+                        Status = StatusCodes.Status422UnprocessableEntity,
+                        Detail = "請看詳細訊息",
+                        Instance = context.HttpContext.Request.Path
+                    };
+
+                    problemDetails.Extensions.Add("traceId", context.HttpContext.TraceIdentifier);
+
+                    return new UnprocessableEntityObjectResult(problemDetails)
+                    {
+                        ContentTypes = { "application/problem+json" }
+                    };
+                };
+            });
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
